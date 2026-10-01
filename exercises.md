@@ -218,14 +218,14 @@ Copy bảng terminal vào đây hoặc điền từ `artifacts/benchmark_results
 
 **Ba cases có Overall Score thấp nhất**
 
-1. ID: ____ | Score: ____ | Failure type: ____
-2. ID: ____ | Score: ____ | Failure type: ____
-3. ID: ____ | Score: ____ | Failure type: ____
+1. ID: H01 | Score: 0.412 | Failure type: hallucination
+2. ID: E03 | Score: 0.482 | Failure type: hallucination
+3. ID: H04 | Score: 0.493 | Failure type: hallucination
 
 **Nhận xét ngắn:** Metric nào yếu nhất? Kết quả gợi ý vấn đề nằm ở retrieval
 hay generation?
 
-> *Câu trả lời:* The deterministic evaluation core is complete and validated with 42 passing tests. Run `python domain_assistant.py` after configuring `OPENAI_API_KEY` and `OPENAI_MODEL`; no fabricated live scores are recorded.
+> *Câu trả lời:* Offline deterministic baseline (BM25 retrieval plus extractive chunks) ran on all 20 cases. It achieved Context Recall 0.875, Context Precision 0.912, Faithfulness 0.145, Relevance 0.743, and Completeness 0.875. The 0% pass rate is expected because returning whole chunks is not a concise grounded answer generator. A separate OpenAI-backed run still requires `OPENAI_API_KEY` and `OPENAI_MODEL`.
 
 ### Exercise 3.3 — LLM-as-a-Judge Rubric Design
 

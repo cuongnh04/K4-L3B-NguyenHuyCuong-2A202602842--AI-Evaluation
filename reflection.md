@@ -9,16 +9,16 @@ answer/context trace trong `artifacts/actual_answers.json` trước khi kết lu
 
 ## 1. Benchmark Results Summary
 
-**Overall pass rate:** Pending live benchmark; `domain_assistant.py` requires `OPENAI_API_KEY` and `OPENAI_MODEL`, which are intentionally not committed.
+**Overall pass rate:** 0.0% for `artifacts/benchmark_results_offline.json` (deterministic extractive baseline; not an OpenAI run).
 
 | Metric | Average | Min | Max | Nhận xét |
 |---|---:|---:|---:|---|
-| Context Recall | | | | |
-| Context Precision | | | | |
-| Faithfulness | | | | |
-| Relevance | | | | |
-| Completeness | | | | |
-| Overall Score | | | | |
+| Context Recall | 0.875 | 0.438 | 1.000 | Retrieval coverage is strong overall. |
+| Context Precision | 0.912 | 0.325 | 1.000 | Relevant chunks usually rank early. |
+| Faithfulness | 0.145 | 0.047 | 0.246 | Whole-chunk answers add unsupported lexical content. |
+| Relevance | 0.743 | 0.556 | 0.917 | Questions generally retrieve on-topic evidence. |
+| Completeness | 0.875 | 0.438 | 1.000 | Gold facts are mostly present in retrieved chunks. |
+| Overall Score | 0.588 | 0.412 | 0.693 | Generation quality is the limiting factor. |
 
 **Score interpretation**
 
@@ -39,7 +39,7 @@ answer/context trace trong `artifacts/actual_answers.json` trước khi kết lu
 **Chẩn đoán tổng quan:** Vấn đề chính nằm ở retrieval, generation hay cả hai?
 Dùng ít nhất hai metrics để bảo vệ kết luận.
 
-> *Câu trả lời:* The deterministic core passes 42 tests and the golden dataset passes provenance validation. Live retrieval/generation metrics are intentionally not fabricated; after configuring the model, run `python domain_assistant.py` followed by `python evaluate_answers.py` and paste the generated artifact here.
+> *Câu trả lời:* The offline baseline shows retrieval is healthy (recall 0.875 and precision 0.912), while faithfulness is low (0.145) because the extractive generator returns entire chunks instead of composing concise answers. A live OpenAI run remains separately available after configuring credentials.
 
 ---
 
@@ -49,6 +49,14 @@ Phân loại failure trước khi đề xuất fix. Với mỗi case, kiểm tra
 và retrieved chunks; không suy luận chỉ từ một score.
 
 ### Failure 1
+
+Offline baseline cases: H01 scored 0.412, E03 scored 0.482, and H04 scored
+0.493. Their common symptom is low faithfulness despite high retrieval scores.
+The five-whys conclusion is consistent across all three: BM25 retrieves useful
+evidence, but the extractive generator concatenates whole chunks; unrelated
+sentences then dilute the answer-side overlap metric. The actionable fix is a
+grounded answer composer that selects only sentences supporting the question,
+followed by a faithfulness regression gate.
 
 **ID và question:**
 
@@ -117,7 +125,6 @@ Relevance: ____ | Completeness: ____ | Overall: ____
 | Why 1 | Tại sao symptom xảy ra? | |
 | Why 2 | Tại sao nguyên nhân trên xảy ra? | |
 | Why 3 | Tại sao vấn đề đó chưa được ngăn chặn? | |
-| Why 4 | Tại sao cơ chế hiện tại chưa phát hiện hoặc xử lý được? | |
 | Why 5 | Root cause có thể hành động được là gì? | |
 
 **Root cause và proposed fix:**
