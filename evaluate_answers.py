@@ -33,7 +33,7 @@ def _read_json_file(path: Path, label: str) -> dict[str, Any]:
             f"({exc.msg})"
         ) from exc
     if not isinstance(value, dict):
-        raise ValueError(f"{label} root must be a JSON object")
+        raise TypeError(f"{label} root must be a JSON object")
     return value
 
 
@@ -58,7 +58,7 @@ def load_evaluation_inputs(
     actual_by_id: dict[str, dict[str, Any]] = {}
     for index, record in enumerate(actual_records):
         if not isinstance(record, dict):
-            raise ValueError(f"Actual answers[{index}] must be an object")
+            raise TypeError(f"Actual answers[{index}] must be an object")
         record_id = record.get("id")
         if not isinstance(record_id, str) or not record_id:
             raise ValueError(f"Actual answers[{index}].id must be a string")
@@ -71,7 +71,7 @@ def load_evaluation_inputs(
     golden_ids: set[str] = set()
     for index, record in enumerate(golden_records):
         if not isinstance(record, dict):
-            raise ValueError(f"Golden qa_pairs[{index}] must be an object")
+            raise TypeError(f"Golden qa_pairs[{index}] must be an object")
         record_id = record.get("id")
         question = record.get("question")
         expected = record.get("expected_answer")
@@ -102,7 +102,7 @@ def load_evaluation_inputs(
         gold_context_texts: list[str] = []
         for context_index, context_record in enumerate(contexts):
             if not isinstance(context_record, dict):
-                raise ValueError(
+                raise TypeError(
                     f"{record_id}: contexts[{context_index}] must be an object"
                 )
             text = context_record.get("text")
@@ -114,11 +114,11 @@ def load_evaluation_inputs(
 
         retrieved_records = actual_record.get("retrieved_contexts")
         if not isinstance(retrieved_records, list):
-            raise ValueError(f"{record_id}: retrieved_contexts must be a list")
+            raise TypeError(f"{record_id}: retrieved_contexts must be a list")
         retrieved_texts: list[str] = []
         for context_index, context_record in enumerate(retrieved_records):
             if not isinstance(context_record, dict):
-                raise ValueError(
+                raise TypeError(
                     f"{record_id}: retrieved_contexts[{context_index}] must be an object"
                 )
             text = context_record.get("text")

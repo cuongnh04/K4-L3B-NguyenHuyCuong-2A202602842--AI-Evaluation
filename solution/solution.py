@@ -26,9 +26,9 @@ The reranking helper is an optional bonus exercise and may remain unimplemented.
 from __future__ import annotations
 
 import re
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, Callable
-
+from typing import Any
 
 # ---------------------------------------------------------------------------
 # Task 1 — Data Models (Golden Dataset + Evaluation Results)

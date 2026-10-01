@@ -105,7 +105,7 @@ def load_corpus(corpus_dir: str | Path) -> tuple[str, list[Chunk]]:
         raise ValueError(f"Invalid manifest JSON: {exc}") from exc
 
     if not isinstance(manifest, dict):
-        raise ValueError("manifest.json must contain a JSON object")
+        raise TypeError("manifest.json must contain a JSON object")
     corpus_id = _required_text(manifest, "corpus_id", "manifest")
     documents = manifest.get("documents")
     if not isinstance(documents, list) or not documents:
@@ -116,7 +116,7 @@ def load_corpus(corpus_dir: str | Path) -> tuple[str, list[Chunk]]:
     seen_paths: set[str] = set()
     for document_order, raw_document in enumerate(documents):
         if not isinstance(raw_document, dict):
-            raise ValueError(f"manifest.documents[{document_order}] must be an object")
+            raise TypeError(f"manifest.documents[{document_order}] must be an object")
         location = f"manifest.documents[{document_order}]"
         doc_id = _required_text(raw_document, "doc_id", location)
         source_doc = _required_text(raw_document, "path", location)
@@ -389,7 +389,7 @@ def _load_questions(dataset_path: Path) -> tuple[str, list[dict[str, str]]]:
             f"{exc.colno} ({exc.msg})"
         ) from exc
     if not isinstance(dataset, dict):
-        raise ValueError("Dataset root must be an object")
+        raise TypeError("Dataset root must be an object")
     corpus_id = _required_text(dataset, "corpus_id", "dataset")
     qa_pairs = dataset.get("qa_pairs")
     if not isinstance(qa_pairs, list) or not qa_pairs:
@@ -399,7 +399,7 @@ def _load_questions(dataset_path: Path) -> tuple[str, list[dict[str, str]]]:
     seen_ids: set[str] = set()
     for index, raw_pair in enumerate(qa_pairs):
         if not isinstance(raw_pair, dict):
-            raise ValueError(f"dataset.qa_pairs[{index}] must be an object")
+            raise TypeError(f"dataset.qa_pairs[{index}] must be an object")
         location = f"dataset.qa_pairs[{index}]"
         pair_id = _required_text(raw_pair, "id", location)
         question = _required_text(raw_pair, "question", location)
