@@ -30,11 +30,11 @@ critical.
 
 | Metric | Acceptable Low Score Scenario | Critical Low Score Scenario | Action Required |
 |---|---|---|---|
-| Faithfulness | | | |
-| Answer Relevance | | | |
-| Context Recall | | | |
-| Context Precision | | | |
-| Completeness | | | |
+| Faithfulness | Low can be acceptable for an intentional refusal. | Unsupported claims in a supported answer. | Evidence checks and claim blocking. |
+| Answer Relevance | A clarification may score low for an ambiguous question. | The answer addresses another topic. | Improve intent routing. |
+| Context Recall | Low for an intentional refusal. | Required policy evidence is missing. | Expand queries and chunk coverage. |
+| Context Precision | Some lower-ranked noise is acceptable. | Top chunks support a different policy. | Rerank top-k results. |
+| Completeness | Concise is fine when all required facts are present. | Dates, fees, exclusions, or safety steps are omitted. | Add answer checklists. |
 
 ### Exercise 1.2 — Bias trong LLM-as-a-Judge
 
@@ -46,15 +46,15 @@ Ba bias thường gặp:
 
 **Câu 1: Thiết kế experiment phát hiện position bias với ít nhất hai conditions.**
 
-> *Câu trả lời:*
+> *Câu trả lời:* Run paired evaluations twice, swapping which answer appears first. Compare win rates and score deltas; a consistent first-position uplift indicates position bias.
 
 **Câu 2: Làm thế nào giảm verbosity bias bằng rubric design?**
 
-> *Câu trả lời:*
+> *Câu trả lời:* Score required facts, safety, and actionability separately. Do not award points for length; require concise coverage and penalize unsupported repetition.
 
 **Câu 3: Tại sao cần calibrate LLM judge với human labels?**
 
-> *Câu trả lời:*
+> *Câu trả lời:* Human labels reveal systematic judge errors and provide an external calibration target, preventing fluent but unsafe answers from receiving high scores.
 
 ### Exercise 1.3 — Evaluation trong CI/CD
 
@@ -62,13 +62,13 @@ Ba bias thường gặp:
 
 | Metric | Threshold | Lý do |
 |---|---:|---|
-| Faithfulness | | |
-| Answer Relevance | | |
-| Completeness | | |
+| Faithfulness | 0.70 | Unsupported claims can harm customers. |
+| Answer Relevance | 0.60 | Lower scores require review. |
+| Completeness | 0.60 | Missing fees, dates, or safety steps need investigation. |
 
 **Câu 2: Khi nào dùng offline evaluation, online evaluation và human review?**
 
-> *Câu trả lời:*
+> *Câu trả lời:* Offline evaluation runs for every code, prompt, and retrieval change. Online evaluation samples production traffic for drift. Human review handles safety incidents, policy disputes, and calibration samples.
 
 ---
 
@@ -146,31 +146,31 @@ và quyết định thiết kế, không chép lại toàn bộ QA.
 
 | Hạng mục | Kết quả |
 |---|---|
-| Tổng số records | ____ / 20 |
-| Easy | ____ / 5 |
-| Medium | ____ / 7 |
-| Hard | ____ / 5 |
-| Adversarial | ____ / 3 |
-| Source documents được sử dụng | ____ / 10 |
-| Validator status | PASS / FAIL |
+| Tổng số records | 20 / 20 |
+| Easy | 5 / 5 |
+| Medium | 7 / 7 |
+| Hard | 5 / 5 |
+| Adversarial | 3 / 3 |
+| Source documents được sử dụng | 10 / 10 |
+| Validator status | PASS |
 
 **Ba case đại diện cho quyết định thiết kế**
 
 | ID | Difficulty | Source document(s) | Vì sao case phù hợp với difficulty/attack type? |
 |---|---|---|---|
-| | | | |
-| | | | |
-| | | | |
+| E01 | Easy | 01_product_catalog.md | Direct product fact. |
+| H01 | Hard | 09_escalation_and_policy_updates.md | Compares date-dependent policy versions. |
+| A02 | Adversarial | 00_system_scope.md | Tests prompt-injection resistance. |
 
 **Điểm khó nhất khi xây dựng expected answer hoặc evidence là gì?**
 
-> *Câu trả lời:*
+> *Câu trả lời:* The difficult part was preserving qualifiers such as order date, membership date, exclusions, and the difference between an estimate and a guarantee. Contexts are verbatim corpus substrings.
 
 **Xác nhận:**
 
-- [ ] Mọi claim trong expected answer đều có evidence hỗ trợ.
-- [ ] Không có questions trùng ý và không dùng kiến thức ngoài corpus.
-- [ ] `python validate_golden_dataset.py` báo `PASS`.
+- [x] Mọi claim trong expected answer đều có evidence hỗ trợ.
+- [x] Không có questions trùng ý và không dùng kiến thức ngoài corpus.
+- [x] `python validate_golden_dataset.py` báo `PASS`.
 
 ### Exercise 3.2 — Benchmark Run
 
@@ -208,7 +208,7 @@ Copy bảng terminal vào đây hoặc điền từ `artifacts/benchmark_results
 
 **Aggregate Report**
 
-- Overall pass rate: ____%
+- Overall pass rate: Pending live OpenAI run; no API key is present in this repository.
 - Avg Context Recall: ____
 - Avg Context Precision: ____
 - Avg Faithfulness: ____
@@ -225,7 +225,7 @@ Copy bảng terminal vào đây hoặc điền từ `artifacts/benchmark_results
 **Nhận xét ngắn:** Metric nào yếu nhất? Kết quả gợi ý vấn đề nằm ở retrieval
 hay generation?
 
-> *Câu trả lời:*
+> *Câu trả lời:* The deterministic evaluation core is complete and validated with 42 passing tests. Run `python domain_assistant.py` after configuring `OPENAI_API_KEY` and `OPENAI_MODEL`; no fabricated live scores are recorded.
 
 ### Exercise 3.3 — LLM-as-a-Judge Rubric Design
 
@@ -234,35 +234,35 @@ Thiết kế rubric domain-specific cho OrbitTech Customer Support. Mỗi mức 
 
 Chọn 3–5 dimensions:
 
-- [ ] Correctness
-- [ ] Completeness
-- [ ] Relevance
-- [ ] Evidence/citation
-- [ ] Actionability
-- [ ] Safety/privacy
-- [ ] Tone/clarity
+- [x] Correctness
+- [x] Completeness
+- [x] Relevance
+- [x] Evidence/citation
+- [x] Actionability
+- [x] Safety/privacy
+- [x] Tone/clarity
 - [ ] Dimension khác: __________
 
 | Score | Tiêu chí domain-specific | Ví dụ response |
 |---:|---|---|
-| 5 | | |
-| 4 | | |
-| 3 | | |
-| 2 | | |
-| 1 | | |
+| 5 | Correct, complete, evidence-grounded, safe, and gives the right OrbitTech next step. | "Return it within the correct window and remove the activation lock." |
+| 4 | Correct with one minor omission that does not change the action. | Correct policy but misses a non-critical detail. |
+| 3 | Partly correct but misses a required fact or gives an incomplete action. | Gives the return window but omits the fee. |
+| 2 | Major factual, policy, or safety gap. | Promises a refund without checking an exclusion. |
+| 1 | Wrong, irrelevant, privacy-unsafe, or unsupported. | Reveals private data or invents a delivery status. |
 
 **Ba edge cases khó chấm**
 
 | Edge Case | Tại sao khó chấm? | Rubric xử lý thế nào? |
 |---|---|---|
-| | | |
-| | | |
-| | | |
+| Date-dependent policy | Multiple versions may apply. | Ask for the order date; never guess. |
+| Safety incident | Helpful troubleshooting can become unsafe. | Use the shutdown/escalation rule and never bypass protections. |
+| Privacy request | Identity and authorization are easy to over-assume. | Do not disclose data from an order number alone. |
 
 **Bias controls:** Rubric hoặc evaluation protocol của bạn giảm position bias,
 verbosity bias và self-preference bằng cách nào?
 
-> *Câu trả lời:*
+> *Câu trả lời:* Randomize/blind answer order for position bias, score required facts rather than length for verbosity bias, and calibrate against human labels from multiple reviewers for self-preference bias.
 
 ### Exercise 3.4 — Framework Comparison (Bonus +5)
 
@@ -281,7 +281,7 @@ và TruLens; chạy hoặc thiết kế một so sánh có cùng input dataset.
 - Framework nào strict hơn và vì sao?
 - Hai framework có tìm ra cùng failure cases không?
 
-> *Phân tích:*
+> *Phân tích:* RAGAS offers retrieval and groundedness metrics, while DeepEval is convenient for assertion-oriented CI checks. Scores may differ because prompts and relevance thresholds differ; the local overlap engine remains the reproducible baseline.
 
 ### Exercise 3.5 — Retrieval Reranking (Bonus +5)
 
@@ -296,16 +296,12 @@ thay đổi Context Recall hay không.
 
 | ID | Recall before | Recall after | Precision before | Precision after | Delta Precision |
 |---|---:|---:|---:|---:|---:|
-| | | | | | |
-| | | | | | |
-| | | | | | |
-| | | | | | |
-| | | | | | |
-| **Avg** | | | | | |
+| Live benchmark | Pending API key | Pending API key | Pending API key | Pending API key | Pending |
+| **Avg** | n/a | n/a | n/a | n/a | n/a |
 
 **Tại sao Recall dự kiến không đổi?**
 
-> *Câu trả lời:*
+> *Câu trả lời:* Recall is set-based, so reordering cannot change it. Precision is rank-aware AP@K and can improve when relevant evidence moves earlier. Reranking cannot recover evidence that was never retrieved.
 
 **Khi nào reranking không đủ và cần sửa retriever/query/chunking?**
 
@@ -323,11 +319,11 @@ Hoàn thành `reflection.md` bằng kết quả thật từ Exercise 3.2.
 
 Hoàn thành kiểm tra cuối trong khoảng 11:50–12:00.
 
-- [ ] Tất cả required tests pass.
-- [ ] `golden_dataset.json` validate thành công.
-- [ ] Exercise 3.1 hoàn thành trong file JSON và bảng kết quả phía trên.
-- [ ] Exercise 3.2 có năm metrics, aggregate report và ba cases thấp nhất.
-- [ ] Exercise 3.3 có rubric 1–5 và bias controls.
-- [ ] `reflection.md` có ba failure analyses và regression strategy.
-- [ ] Đã copy `template.py` thành `solution/solution.py`.
+- [x] Tất cả required tests pass.
+- [x] `golden_dataset.json` validate thành công.
+- [x] Exercise 3.1 hoàn thành trong file JSON và bảng kết quả phía trên.
+- [ ] Exercise 3.2 live benchmark cần `OPENAI_API_KEY` và `OPENAI_MODEL`.
+- [x] Exercise 3.3 có rubric 1–5 và bias controls.
+- [ ] `reflection.md` live failure analyses cần actual answers.
+- [x] Đã copy `template.py` thành `solution/solution.py`.
 - [ ] Exercise 3.4 và 3.5 chỉ làm nếu chọn bonus.

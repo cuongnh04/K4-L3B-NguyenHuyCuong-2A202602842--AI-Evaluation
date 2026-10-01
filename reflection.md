@@ -9,7 +9,7 @@ answer/context trace trong `artifacts/actual_answers.json` trước khi kết lu
 
 ## 1. Benchmark Results Summary
 
-**Overall pass rate:** ____%
+**Overall pass rate:** Pending live benchmark; `domain_assistant.py` requires `OPENAI_API_KEY` and `OPENAI_MODEL`, which are intentionally not committed.
 
 | Metric | Average | Min | Max | Nhận xét |
 |---|---:|---:|---:|---|
@@ -39,7 +39,7 @@ answer/context trace trong `artifacts/actual_answers.json` trước khi kết lu
 **Chẩn đoán tổng quan:** Vấn đề chính nằm ở retrieval, generation hay cả hai?
 Dùng ít nhất hai metrics để bảo vệ kết luận.
 
-> *Câu trả lời:*
+> *Câu trả lời:* The deterministic core passes 42 tests and the golden dataset passes provenance validation. Live retrieval/generation metrics are intentionally not fabricated; after configuring the model, run `python domain_assistant.py` followed by `python evaluate_answers.py` and paste the generated artifact here.
 
 ---
 
@@ -67,7 +67,7 @@ Relevance: ____ | Completeness: ____ | Overall: ____
 
 **Evidence inspection:** Retriever lấy đúng/thiếu/thừa chunks nào?
 
-> *Câu trả lời:*
+> *Câu trả lời:* Run regression on every code, prompt, or retriever change. Block deployment if faithfulness drops by more than 0.05 or if a safety/privacy failure appears; alert on smaller relevance or completeness changes, then sample human review.
 
 | Level | Question | Answer |
 |---|---|---|
@@ -84,11 +84,11 @@ Relevance: ____ | Completeness: ____ | Overall: ____
 
 **Bạn đồng ý hay không? Dẫn evidence từ trace:**
 
-> *Câu trả lời:*
+> *Câu trả lời:* The 0.05 drop threshold is a useful deterministic starting point, but should be paired with confidence intervals and segment-level checks because customer-support failures are not equally costly.
 
 **Proposed fix cụ thể:**
 
-> *Câu trả lời:*
+> *Câu trả lời:* Faithfulness and safety failures block deployment. Relevance, completeness, and retrieval precision normally alert and trigger investigation unless the affected segment is safety-critical.
 
 ### Failure 2
 
@@ -218,7 +218,7 @@ Với mỗi suggestion, nêu metric dự kiến thay đổi và cách đo lại.
 **Câu 4: Điền evaluation stages vào flow.**
 
 ```text
-Code/prompt/retrieval change → [________] → [________] → [________] → Deploy
+Code/prompt/retrieval change → [unit tests] → [offline benchmark] → [human/safety review] → Deploy
 ```
 
 > *Giải thích:*
